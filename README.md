@@ -144,8 +144,7 @@ The "Copy as text" button needs the Clipboard API, which requires HTTPS or
 
 ## License
 
-Released under the [MIT License](https://opensource.org/licenses/MIT). Add a
-`LICENSE` file if you want to make that official.
+Released under the [MIT License](https://opensource.org/licenses/MIT).
 
 ---
 
