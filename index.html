@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minecraft Circle &amp; Curve Calculator</title>
+<style>
+  :root{
+    --bg:#12141a; --card:#1c2028; --card2:#252a34; --text:#e8eaed; --muted:#9aa3b0;
+    --accent:#5ec269; --accent-d:#2f7d3a; --border:#313846; --danger:#ff7b7b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);line-height:1.5;
+       font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai","Sarabun",sans-serif}
+  header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--card)}
+  header h1{margin:0;font-size:1.25rem}
+  header p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+  .layout{display:grid;grid-template-columns:340px minmax(0,1fr);gap:16px;padding:16px;max-width:1500px;margin:0 auto}
+  @media(max-width:880px){.layout{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .tabs{display:flex;gap:6px;margin-bottom:12px}
+  .tab{flex:1;padding:9px 6px;border:1px solid var(--border);background:var(--card2);color:var(--text);
+       border-radius:8px;cursor:pointer;font:inherit;font-size:.92rem}
+  .tab.active{background:var(--accent-d);border-color:var(--accent);font-weight:600}
+  .field{margin-bottom:12px}
+  .field>label,.field>.lbl{display:block;font-size:.85rem;color:var(--muted);margin-bottom:4px}
+  input[type=number],select{width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--border);
+       background:var(--card2);color:var(--text);font:inherit}
+  input:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .radio{display:flex;gap:8px}
+  .radio label{flex:1;display:flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--border);
+       border-radius:8px;background:var(--card2);cursor:pointer;color:var(--text);font-size:.92rem;margin:0}
+  .radio input{accent-color:var(--accent)}
+  .check{display:flex;align-items:center;gap:8px;font-size:.88rem;color:var(--text);cursor:pointer}
+  .check input{accent-color:var(--accent)}
+  .hint{font-size:.8rem;color:var(--muted);margin-top:4px}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{padding:5px 9px;border:1px solid var(--border);background:var(--card2);color:var(--text);
+       border-radius:999px;cursor:pointer;font:inherit;font-size:.8rem}
+  .chip:hover{border-color:var(--accent)}
+  .hide{display:none!important}
+  .btn{padding:7px 12px;border:1px solid var(--border);background:var(--card2);color:var(--text);
+       border-radius:8px;cursor:pointer;font:inherit;font-size:.85rem}
+  .btn:hover{border-color:var(--accent)}
+  .error{background:#3a1d22;border:1px solid #7a2f3a;color:var(--danger);padding:10px 12px;border-radius:8px;margin-bottom:12px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+  .stat{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+  .stat span{display:block;font-size:.75rem;color:var(--muted)}
+  .stat b{font-size:1rem}
+  .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:10px}
+  .toolbar input[type=range]{accent-color:var(--accent);width:120px}
+  .wrap{overflow:auto;max-height:75vh;border:1px solid var(--border);border-radius:8px;background:#10131a;position:relative}
+  .stage{position:relative;display:inline-block;vertical-align:top}
+  .stage canvas{display:block}
+  #ov{position:absolute;left:0;top:0;pointer-events:none}
+  .status{font-size:.85rem;color:var(--muted);min-height:1.4em;margin:6px 0 10px}
+  details{margin-top:10px}
+  summary{cursor:pointer;font-weight:600;padding:6px 0}
+  .tablebox{max-height:360px;overflow:auto;border:1px solid var(--border);border-radius:8px}
+  table{border-collapse:collapse;width:100%;font-size:.88rem}
+  th,td{padding:5px 10px;border-bottom:1px solid var(--border);text-align:left}
+  th{position:sticky;top:0;background:var(--card2)}
+  td.n,th.n{text-align:right;width:70px}
+  .note{font-size:.82rem;color:var(--muted);margin:6px 0}
+  footer{padding:14px;text-align:center;color:var(--muted);font-size:.8rem}
+</style>
+</head>
+<body>
+<header>
+  <h1>Minecraft Circle &amp; Curve Calculator</h1>
+  <p>คำนวณวงกลม ทางโค้ง และ S-curve สำหรับก่อสร้างในเกม</p>
+</header>
+
+<div class="layout">
+  <!-- ========== Controls ========== -->
+  <aside class="card">
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-mode="circle" role="tab">วงกลม</button>
+      <button class="tab" data-mode="arc" role="tab">ทางโค้ง</button>
+      <button class="tab" data-mode="scurve" role="tab">S-curve</button>
+    </div>
+
+    <!-- size (circle / arc) -->
+    <div class="field" data-modes="circle arc">
+      <label for="sizeType">ระบุขนาดเป็น</label>
+      <select id="sizeType">
+        <option value="d">เส้นผ่านศูนย์กลาง (Diameter)</option>
+        <option value="r">รัศมี (Radius)</option>
+      </select>
+    </div>
+    <div class="field" data-modes="circle arc">
+      <label for="size">ค่า (บล็อก)</label>
+      <input type="number" id="size" value="21" min="1" step="1" inputmode="decimal">
+    </div>
+    <div class="field" data-modes="circle arc" data-size="r">
+      <label class="check"><input type="checkbox" id="radCenter">
+        นับรัศมีจากบล็อกกลาง (เส้นผ่านศูนย์กลาง = 2r + 1)</label>
+      <div class="hint">ถ้าไม่ติ๊ก: เส้นผ่านศูนย์กลาง = 2r (รัศมีรับค่า .5 ได้)</div>
+    </div>
+
+    <!-- arc -->
+    <div data-modes="arc">
+      <div class="two field">
+        <div><label for="start">มุมเริ่ม (°)</label>
+          <input type="number" id="start" value="0" min="0" max="359" step="1"></div>
+        <div><label for="sweep">มุมโค้ง (°)</label>
+          <input type="number" id="sweep" value="90" min="1" max="360" step="1"></div>
+      </div>
+      <div class="hint" style="margin:-6px 0 8px">0° = ชี้ขึ้นด้านบน (เหนือ) หมุนตามเข็มนาฬิกา</div>
+      <div class="field">
+        <div class="lbl">ปุ่มลัด</div>
+        <div class="chips">
+          <button class="chip" data-arc="0,90">¼ บนขวา</button>
+          <button class="chip" data-arc="90,90">¼ ล่างขวา</button>
+          <button class="chip" data-arc="180,90">¼ ล่างซ้าย</button>
+          <button class="chip" data-arc="270,90">¼ บนซ้าย</button>
+          <button class="chip" data-arc="270,180">½ บน</button>
+          <button class="chip" data-arc="0,180">½ ขวา</button>
+          <button class="chip" data-arc="90,180">½ ล่าง</button>
+          <button class="chip" data-arc="180,180">½ ซ้าย</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="check"><input type="checkbox" id="ghost" checked> แสดงวงกลมเต็มแบบจาง ๆ</label>
+      </div>
+    </div>
+
+    <!-- S-curve -->
+    <div data-modes="scurve">
+      <div class="field">
+        <label for="spec">กำหนดโค้งด้วย</label>
+        <select id="spec">
+          <option value="ls">ระยะไปข้างหน้า (L) + ระยะเบี่ยง (S)</option>
+          <option value="rs">รัศมี (R) + ระยะเบี่ยง (S)</option>
+        </select>
+      </div>
+      <div class="two field">
+        <div data-modes="scurve" data-spec="ls"><label for="L">L: ระยะไปข้างหน้า</label>
+          <input type="number" id="L" value="24" min="1" step="1"></div>
+        <div data-modes="scurve" data-spec="rs"><label for="R">R: รัศมีโค้ง</label>
+          <input type="number" id="R" value="20" min="1" step="0.5"></div>
+        <div><label for="S">S: ระยะเบี่ยงข้าง</label>
+          <input type="number" id="S" value="6" min="1" step="1"></div>
+      </div>
+      <div class="two field">
+        <div><label for="leadIn">ทางตรงก่อนโค้ง</label>
+          <input type="number" id="leadIn" value="3" min="0" step="1"></div>
+        <div><label for="leadOut">ทางตรงหลังโค้ง</label>
+          <input type="number" id="leadOut" value="3" min="0" step="1"></div>
+      </div>
+      <div class="field">
+        <label for="dir">ทิศทาง</label>
+        <select id="dir">
+          <option value="vr">แนวตั้ง (บน→ล่าง) เบี่ยงไปขวา</option>
+          <option value="vl">แนวตั้ง (บน→ล่าง) เบี่ยงไปซ้าย</option>
+          <option value="hd">แนวนอน (ซ้าย→ขวา) เบี่ยงลงล่าง</option>
+          <option value="hu">แนวนอน (ซ้าย→ขวา) เบี่ยงขึ้นบน</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- common -->
+    <div class="field">
+      <div class="lbl">ลักษณะเส้นขอบ</div>
+      <div class="radio">
+        <label><input type="radio" name="type" value="thin" checked> บาง</label>
+        <label><input type="radio" name="type" value="thick"> หนา</label>
+      </div>
+      <div class="hint"><b>บาง</b> = บล็อกเชื่อมกันแบบทแยงได้ (ใช้บล็อกน้อยกว่า)<br>
+        <b>หนา</b> = บล็อกติดกันด้านข้างเสมอ ไม่มีรอยทแยง (เหมาะกับกำแพง ทางเดิน หรือกันน้ำรั่ว)</div>
+    </div>
+    <div class="field">
+      <label for="width">ความหนาของเส้น (จำนวนชั้น)</label>
+      <input type="number" id="width" value="1" min="1" max="20" step="1">
+    </div>
+  </aside>
+
+  <!-- ========== Result ========== -->
+  <section class="card">
+    <div id="error" class="error hide"></div>
+    <div id="stats" class="stats"></div>
+
+    <div class="toolbar">
+      <label class="check"><input type="checkbox" id="auto" checked> ปรับขนาดช่องอัตโนมัติ</label>
+      <label class="check">ขนาดช่อง
+        <input type="range" id="cs" min="4" max="40" value="16"> <span id="csv">16px</span></label>
+      <button class="btn" id="png">ดาวน์โหลด PNG</button>
+      <button class="btn" id="copy">คัดลอกเป็นข้อความ</button>
+    </div>
+
+    <div class="wrap" id="wrap">
+      <div class="stage"><canvas id="cv" width="10" height="10"></canvas><canvas id="ov" width="10" height="10"></canvas></div>
+    </div>
+    <div class="status" id="status">เลื่อนเมาส์บนกริดเพื่อดูตำแหน่งบล็อก</div>
+
+    <details open>
+      <summary>ตารางสร้างทีละแถว</summary>
+      <div class="note" id="guideNote"></div>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th class="n">แถว</th><th>รูปแบบ (นับจากขอบซ้ายของกรอบ)</th><th class="n">บล็อก</th></tr></thead>
+          <tbody id="guide"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+</div>
+
+<footer>ทำงานในเบราว์เซอร์ทั้งหมด · ไม่มีการส่งข้อมูลออกไปที่ใด</footer>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+let mode = 'circle', last = null;
+
+/* ---------- input helpers ---------- */
+function num(id, label, {min = -Infinity, max = Infinity, int = false} = {}) {
+  const raw = $(id).value.trim(), v = Number(raw);
+  if (raw === '' || !isFinite(v)) throw `กรุณากรอก "${label}" เป็นตัวเลข`;
+  if (int && !Number.isInteger(v)) throw `"${label}" ต้องเป็นจำนวนเต็ม`;
+  if (v < min || v > max) throw `"${label}" ต้องอยู่ระหว่าง ${min} ถึง ${max}`;
+  return v;
+}
+function getDiameter() {
+  const t = $('sizeType').value;
+  const v = num('size', t === 'd' ? 'เส้นผ่านศูนย์กลาง' : 'รัศมี', {min: 1, max: 300});
+  let D;
+  if (t === 'd') {
+    if (!Number.isInteger(v)) throw 'เส้นผ่านศูนย์กลางต้องเป็นจำนวนเต็ม';
+    D = v;
+  } else {
+    if (!Number.isInteger(v * 2)) throw 'รัศมีต้องเป็นจำนวนเต็ม หรือลงท้ายด้วย .5';
+    D = $('radCenter').checked ? v * 2 + 1 : v * 2;
+    if (!Number.isInteger(D)) throw 'เมื่อนับรัศมีจากบล็อกกลาง รัศมีต้องเป็นจำนวนเต็ม';
+  }
+  if (D < 1 || D > 300) throw 'เส้นผ่านศูนย์กลางต้องอยู่ระหว่าง 1 ถึง 300 บล็อก';
+  return D;
+}
+
+/* ---------- core: region -> outline layers ---------- */
+// region(i,j) -> bool  (บล็อกที่ "อยู่ในพื้นที่")
+// นำพื้นที่มาลอกเปลือกทีละชั้น: บาง = เช็กเพื่อนบ้าน 4 ทิศ, หนา = 8 ทิศ
+function stroke(W, H, region, nb8, width) {
+  const pad = width + 2, PW = W + 2 * pad, PH = H + 2 * pad;
+  const cur = new Uint8Array(PW * PH), res = new Uint8Array(PW * PH);
+  for (let y = 0; y < PH; y++)
+    for (let x = 0; x < PW; x++) cur[y * PW + x] = region(x - pad, y - pad) ? 1 : 0;
+  const dirs = nb8
+    ? [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]
+    : [[1,0],[-1,0],[0,1],[0,-1]];
+  for (let k = 0; k < width; k++) {
+    const layer = [];
+    for (let y = 0; y < PH; y++)
+      for (let x = 0; x < PW; x++) {
+        if (!cur[y * PW + x]) continue;
+        for (const [dx, dy] of dirs) {
+          const nx = Math.min(PW - 1, Math.max(0, x + dx));
+          const ny = Math.min(PH - 1, Math.max(0, y + dy));
+          if (!cur[ny * PW + nx]) { layer.push(y * PW + x); break; }
+        }
+      }
+    if (!layer.length) break;
+    for (const idx of layer) { cur[idx] = 0; res[idx] = 1; }
+  }
+  return {res, PW, PH, pad};
+}
+function collect(st, keep) {
+  const out = [];
+  for (let y = 0; y < st.PH; y++)
+    for (let x = 0; x < st.PW; x++)
+      if (st.res[y * st.PW + x]) {
+        const X = x - st.pad, Y = y - st.pad;
+        if (!keep || keep(X, Y)) out.push([X, Y]);
+      }
+  return out;
+}
+function makeGrid(main, ghost, center) {
+  const all = ghost ? main.concat(ghost) : main;
+  if (!all.length) throw 'ไม่มีบล็อกให้แสดงผล';
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const [x, y] of all) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  const w = x1 - x0 + 1, h = y1 - y0 + 1, data = new Uint8Array(w * h);
+  if (ghost) for (const [x, y] of ghost) data[(y - y0) * w + (x - x0)] = 2;
+  for (const [x, y] of main) data[(y - y0) * w + (x - x0)] = 1;
+  return {w, h, data, count: main.length, center: center ? {x: center.x - x0, y: center.y - y0} : null};
+}
+const stacks = n => `${n.toLocaleString()} (${Math.floor(n / 64)} สแตก + ${n % 64})`;
+
+/* ---------- calculators ---------- */
+function circleRegion(D) {
+  const R = D / 2;
+  return (i, j) => { const dx = i + .5 - R, dy = j + .5 - R; return dx * dx + dy * dy <= R * R + 1e-9; };
+}
+
+function calcCircle(nb8, width) {
+  const D = getDiameter(), R = D / 2, region = circleRegion(D);
+  const st = stroke(D, D, region, nb8, width);
+  const cells = collect(st, (x, y) => x >= 0 && y >= 0 && x < D && y < D);
+  const grid = makeGrid(cells, null, {x: R, y: R});
+  let disc = 0;
+  for (let y = 0; y < D; y++) for (let x = 0; x < D; x++) if (region(x, y)) disc++;
+  return {
+    grid, symmetric: true, file: `circle-D${D}-${nb8 ? 'thick' : 'thin'}`,
+    stats: [
+      ['เส้นผ่านศูนย์กลาง', D + ' บล็อก'], ['รัศมี', R + ' บล็อก'],
+      ['จำนวนบล็อกเส้นขอบ', stacks(cells.length)], ['ถ้าถมเต็มวง', stacks(disc)],
+      ['ขนาดกรอบ', `${grid.w} × ${grid.h}`],
+      ['จุดศูนย์กลาง', D % 2 ? 'บล็อกเดียวตรงกลาง' : 'มุมร่วม 4 บล็อก (2×2)']
+    ],
+    note: 'วงกลมสมมาตร จึงแสดงเฉพาะครึ่งบน ส่วนครึ่งล่างให้ทำสะท้อนกลับ (แถวกลางของเลขคี่ใช้ครั้งเดียว)'
+  };
+}
+
+function calcArc(nb8, width) {
+  const D = getDiameter(), R = D / 2, region = circleRegion(D);
+  const start = num('start', 'มุมเริ่ม', {min: 0, max: 359.99});
+  const sweep = num('sweep', 'มุมโค้ง', {min: 1, max: 360});
+  const st = stroke(D, D, region, nb8, width);
+  const full = collect(st, (x, y) => x >= 0 && y >= 0 && x < D && y < D);
+  const inArc = (x, y) => {
+    const dx = x + .5 - R, dy = y + .5 - R;
+    let a = Math.atan2(dx, -dy) * 180 / Math.PI; if (a < 0) a += 360;
+    const t = (((a - start) % 360) + 360 + 1e-7) % 360;
+    return t <= sweep + 2e-7;
+  };
+  const main = full.filter(([x, y]) => inArc(x, y));
+  if (!main.length) throw 'ไม่มีบล็อกในช่วงมุมนี้';
+  const grid = makeGrid(main, $('ghost').checked ? full : null, {x: R, y: R});
+  return {
+    grid, symmetric: false, file: `arc-D${D}-${start}-${sweep}`,
+    stats: [
+      ['รัศมีวงกลม', R + ' บล็อก'], ['ช่วงมุม', `${start}° → ${(start + sweep) % 360}° (${sweep}°)`],
+      ['จำนวนบล็อก', stacks(main.length)], ['ความยาวโค้งโดยประมาณ', (R * sweep * Math.PI / 180).toFixed(1) + ' บล็อก'],
+      ['ขนาดกรอบ', `${grid.w} × ${grid.h}`]
+    ],
+    note: 'ตัวเลข "เว้น" นับจากขอบซ้ายของกรอบที่แสดง (ถ้าเปิดวงกลมจางไว้ กรอบจะเป็นขนาดวงกลมเต็ม)'
+  };
+}
+
+function calcSCurve(nb8, width) {
+  const spec = $('spec').value;
+  const S = num('S', 'ระยะเบี่ยง (S)', {min: 1, max: 200, int: true});
+  const a = num('leadIn', 'ทางตรงก่อนโค้ง', {min: 0, max: 300, int: true});
+  const b = num('leadOut', 'ทางตรงหลังโค้ง', {min: 0, max: 300, int: true});
+  let L, R, theta;
+  if (spec === 'ls') {
+    L = num('L', 'ระยะไปข้างหน้า (L)', {min: 1, max: 300, int: true});
+    if (S > L) throw 'ระยะเบี่ยง (S) ต้องไม่มากกว่าระยะไปข้างหน้า (L) — ถ้าเบี่ยงมากกว่านี้ให้เพิ่ม L';
+    R = (L * L + S * S) / (4 * S);
+    theta = 2 * Math.atan(S / L);
+  } else {
+    R = num('R', 'รัศมีโค้ง (R)', {min: 1, max: 5000});
+    if (S > 2 * R) throw 'ระยะเบี่ยง (S) ต้องไม่เกิน 2 เท่าของรัศมี (R)';
+    theta = Math.acos(1 - S / (2 * R));
+    L = 2 * R * Math.sin(theta);
+  }
+  // g(s): ระยะเบี่ยงข้างที่ระยะ s ตามแนวทาง (โค้งสองวงสมมาตร)
+  const g = s => {
+    if (s <= 0) return 0;
+    if (s >= L) return S;
+    if (s <= L / 2) return R - Math.sqrt(Math.max(0, R * R - s * s));
+    const t = L - s;
+    return S - (R - Math.sqrt(Math.max(0, R * R - t * t)));
+  };
+  const rows = a + Math.ceil(L - 1e-9) + b;
+  if (rows > 800) throw 'ทางยาวเกินไป (สูงสุด 800 บล็อก)';
+  // พื้นที่ "ด้านซ้ายของเส้นทาง" แล้วลอกเปลือกขอบขวาออกมาเป็นเส้นทาง
+  const region = (i, j) => (i + .5) < g(j + .5 - a) + 1 - 1e-9;
+  const st = stroke(Math.ceil(S) + 1, rows, region, nb8, width);
+  let cells = collect(st, (x, y) => y >= 0 && y < rows);
+  const dir = $('dir').value;
+  if (dir === 'vl') cells = cells.map(([x, y]) => [-x, y]);
+  else if (dir === 'hd') cells = cells.map(([x, y]) => [y, x]);
+  else if (dir === 'hu') cells = cells.map(([x, y]) => [y, -x]);
+  const grid = makeGrid(cells, null, null);
+  return {
+    grid, symmetric: false, file: `scurve-L${Math.round(L)}-S${S}`,
+    stats: [
+      ['รัศมีของแต่ละโค้ง', R.toFixed(1) + ' บล็อก'], ['มุมของแต่ละโค้ง', (theta * 180 / Math.PI).toFixed(1) + '°'],
+      ['ระยะโค้งไปข้างหน้า (L)', L.toFixed(1)], ['ระยะเบี่ยง (S)', S + ' บล็อก'],
+      ['จำนวนบล็อก', stacks(cells.length)], ['ขนาดกรอบ', `${grid.w} × ${grid.h}`]
+    ],
+    note: 'S-curve ประกอบด้วยโค้งสองโค้งรัศมีเท่ากันที่โค้งสวนทางกัน เส้นเริ่มและจบขนานกัน (แถวนับจากด้านบนของกริด)'
+  };
+}
+
+/* ---------- rendering ---------- */
+function render(r) {
+  last = r;
+  const g = r.grid, wrap = $('wrap'), M = 28;
+  let cs;
+  if ($('auto').checked) {
+    const avail = Math.max(200, wrap.clientWidth - M - 6);
+    cs = Math.max(4, Math.min(32, Math.floor(avail / g.w)));
+    $('cs').value = cs;
+  } else cs = +$('cs').value;
+  $('csv').textContent = cs + 'px';
+
+  const cv = $('cv'), ov = $('ov'), W = g.w * cs + M, H = g.h * cs + M;
+  cv.width = ov.width = W; cv.height = ov.height = H;
+  const c = cv.getContext('2d');
+  c.fillStyle = '#10131a'; c.fillRect(0, 0, W, H);
+
+  for (let y = 0; y < g.h; y++)
+    for (let x = 0; x < g.w; x++) {
+      const v = g.data[y * g.w + x]; if (!v) continue;
+      c.fillStyle = v === 1 ? '#5ec269' : '#2a3a31';
+      c.fillRect(M + x * cs, M + y * cs, cs, cs);
+      if (v === 1 && cs >= 7) {
+        c.strokeStyle = '#2f7d3a'; c.lineWidth = 1;
+        c.strokeRect(M + x * cs + .5, M + y * cs + .5, cs - 1, cs - 1);
+      }
+    }
+  if (cs >= 8) {
+    c.strokeStyle = 'rgba(255,255,255,.07)'; c.lineWidth = 1; c.beginPath();
+    for (let x = 0; x <= g.w; x++) { c.moveTo(M + x * cs + .5, M); c.lineTo(M + x * cs + .5, H); }
+    for (let y = 0; y <= g.h; y++) { c.moveTo(M, M + y * cs + .5); c.lineTo(W, M + y * cs + .5); }
+    c.stroke();
+  }
+  // labels
+  const step = cs >= 24 ? 1 : cs >= 12 ? 5 : 10;
+  c.fillStyle = '#8b95a5'; c.font = `${Math.min(11, Math.max(8, cs))}px system-ui`;
+  c.textAlign = 'center';
+  for (let n = 1; n <= g.w; n++) if (n === 1 || n % step === 0) c.fillText(n, M + (n - 1) * cs + cs / 2, M - 9);
+  c.textAlign = 'right';
+  for (let n = 1; n <= g.h; n++) if (n === 1 || n % step === 0) c.fillText(n, M - 5, M + (n - 1) * cs + cs / 2 + 4);
+  // center cross
+  if (g.center) {
+    c.save(); c.strokeStyle = 'rgba(255,110,110,.7)'; c.setLineDash([5, 4]); c.beginPath();
+    const cx = M + g.center.x * cs, cy = M + g.center.y * cs;
+    if (cx >= M && cx <= W) { c.moveTo(cx, M); c.lineTo(cx, H); }
+    if (cy >= M && cy <= H) { c.moveTo(M, cy); c.lineTo(W, cy); }
+    c.stroke(); c.restore();
+  }
+
+  // stats
+  $('stats').innerHTML = r.stats.map(([k, v]) => `<div class="stat"><span>${k}</span><b>${v}</b></div>`).join('');
+  renderGuide(r);
+}
+
+function renderGuide(r) {
+  const g = r.grid, rows = r.symmetric ? Math.ceil(g.h / 2) : g.h;
+  let html = '';
+  for (let y = 0; y < rows; y++) {
+    let x = 0, cursor = 0, total = 0; const parts = [];
+    while (x < g.w) {
+      while (x < g.w && g.data[y * g.w + x] !== 1) x++;
+      const s = x;
+      while (x < g.w && g.data[y * g.w + x] === 1) x++;
+      if (x > s) {
+        if (s - cursor > 0) parts.push(`เว้น ${s - cursor}`);
+        parts.push(`<b>วาง ${x - s}</b>`);
+        cursor = x; total += x - s;
+      }
+    }
+    html += `<tr><td class="n">${y + 1}</td><td>${parts.join(' → ') || '(ว่าง)'}</td><td class="n">${total}</td></tr>`;
+  }
+  $('guide').innerHTML = html;
+  $('guideNote').textContent = r.note || '';
+}
+
+/* ---------- hover ---------- */
+$('cv').addEventListener('mousemove', e => {
+  if (!last) return;
+  const cv = $('cv'), rect = cv.getBoundingClientRect(), g = last.grid, M = 28;
+  const sx = cv.width / rect.width, sy = cv.height / rect.height;
+  const cs = +$('cs').value;
+  const col = Math.floor(((e.clientX - rect.left) * sx - M) / cs);
+  const row = Math.floor(((e.clientY - rect.top) * sy - M) / cs);
+  const ov = $('ov'), o = ov.getContext('2d'); o.clearRect(0, 0, ov.width, ov.height);
+  if (col < 0 || row < 0 || col >= g.w || row >= g.h) { $('status').textContent = ' '; return; }
+  o.fillStyle = 'rgba(255,255,255,.08)';
+  o.fillRect(M, M + row * cs, g.w * cs, cs); o.fillRect(M + col * cs, M, cs, g.h * cs);
+  o.strokeStyle = '#ffd24a'; o.lineWidth = 2; o.strokeRect(M + col * cs + 1, M + row * cs + 1, cs - 2, cs - 2);
+  let t = `คอลัมน์ ${col + 1}, แถว ${row + 1}`;
+  if (g.center) {
+    const dx = col + .5 - g.center.x, dz = row + .5 - g.center.y;
+    t += `  |  จากจุดศูนย์กลาง: X ${dx > 0 ? '+' : ''}${dx}, Z ${dz > 0 ? '+' : ''}${dz}`;
+  }
+  const v = g.data[row * g.w + col];
+  $('status').textContent = t + (v === 1 ? '  |  ■ วางบล็อก' : '');
+});
+$('cv').addEventListener('mouseleave', () => {
+  const ov = $('ov'); ov.getContext('2d').clearRect(0, 0, ov.width, ov.height);
+});
+
+/* ---------- update / UI wiring ---------- */
+function update() {
+  try {
+    $('error').classList.add('hide');
+    const nb8 = document.querySelector('input[name=type]:checked').value === 'thick';
+    const width = num('width', 'ความหนาเส้น', {min: 1, max: 20, int: true});
+    const r = mode === 'circle' ? calcCircle(nb8, width)
+            : mode === 'arc' ? calcArc(nb8, width) : calcSCurve(nb8, width);
+    render(r);
+  } catch (e) {
+    const msg = typeof e === 'string' ? e : 'เกิดข้อผิดพลาด: ' + e.message;
+    if (typeof e !== 'string') console.error(e);
+    $('error').textContent = msg; $('error').classList.remove('hide');
+  }
+}
+function vis() {
+  const spec = $('spec').value, st = $('sizeType').value;
+  document.querySelectorAll('[data-modes]').forEach(el => {
+    let show = el.dataset.modes.split(' ').includes(mode);
+    if (show && el.dataset.spec) show = el.dataset.spec === spec;
+    if (show && el.dataset.size) show = el.dataset.size === st;
+    el.classList.toggle('hide', !show);
+  });
+  $('size').step = st === 'r' ? '0.5' : '1';
+}
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.tab').forEach(t => {
+    const on = t.dataset.mode === m;
+    t.classList.toggle('active', on); t.setAttribute('aria-selected', on);
+  });
+  vis(); update();
+}
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => setMode(t.dataset.mode)));
+document.querySelectorAll('[data-arc]').forEach(b => b.addEventListener('click', () => {
+  const [s, w] = b.dataset.arc.split(',');
+  $('start').value = s; $('sweep').value = w; update();
+}));
+document.querySelectorAll('input,select').forEach(el => {
+  el.addEventListener('input', () => { vis(); if (el.id === 'cs') $('auto').checked = false; update(); });
+  el.addEventListener('change', () => { vis(); update(); });
+});
+window.addEventListener('resize', () => { if (last && $('auto').checked) render(last); });
+
+$('png').addEventListener('click', () => {
+  if (!last) return;
+  $('cv').toBlob(b => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = last.file + '.png'; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+});
+$('copy').addEventListener('click', async () => {
+  if (!last) return;
+  const g = last.grid; let s = '';
+  for (let y = 0; y < g.h; y++) {
+    for (let x = 0; x < g.w; x++) s += g.data[y * g.w + x] === 1 ? '■' : '·';
+    s += '\n';
+  }
+  const btn = $('copy');
+  try { await navigator.clipboard.writeText(s); btn.textContent = 'คัดลอกแล้ว ✓'; }
+  catch { btn.textContent = 'คัดลอกไม่ได้'; }
+  setTimeout(() => btn.textContent = 'คัดลอกเป็นข้อความ', 1400);
+});
+
+vis(); update();
+})();
+</script>
+</body>
+</html>
