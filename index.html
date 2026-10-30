@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Minecraft Circle &amp; Curve Calculator</title>
+<meta name="description" content="Plan circles, arcs and S-curves for Minecraft builds. Block-by-block grids, row-by-row build guides and block counts.">
 <style>
   :root{
     --bg:#12141a; --card:#1c2028; --card2:#252a34; --text:#e8eaed; --muted:#9aa3b0;
@@ -11,7 +12,7 @@
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--text);line-height:1.5;
-       font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Thai","Sarabun",sans-serif}
+       font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
   header{padding:14px 20px;border-bottom:1px solid var(--border);background:var(--card)}
   header h1{margin:0;font-size:1.25rem}
   header p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
@@ -44,7 +45,7 @@
        border-radius:8px;cursor:pointer;font:inherit;font-size:.85rem}
   .btn:hover{border-color:var(--accent)}
   .error{background:#3a1d22;border:1px solid #7a2f3a;color:var(--danger);padding:10px 12px;border-radius:8px;margin-bottom:12px}
-  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+  .stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:12px}
   .stat{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
   .stat span{display:block;font-size:.75rem;color:var(--muted)}
   .stat b{font-size:1rem}
@@ -69,109 +70,109 @@
 <body>
 <header>
   <h1>Minecraft Circle &amp; Curve Calculator</h1>
-  <p>คำนวณวงกลม ทางโค้ง และ S-curve สำหรับก่อสร้างในเกม</p>
+  <p>Plan circles, arcs and S-curves for your builds</p>
 </header>
 
 <div class="layout">
   <!-- ========== Controls ========== -->
   <aside class="card">
     <div class="tabs" role="tablist">
-      <button class="tab active" data-mode="circle" role="tab">วงกลม</button>
-      <button class="tab" data-mode="arc" role="tab">ทางโค้ง</button>
+      <button class="tab active" data-mode="circle" role="tab">Circle</button>
+      <button class="tab" data-mode="arc" role="tab">Arc</button>
       <button class="tab" data-mode="scurve" role="tab">S-curve</button>
     </div>
 
     <!-- size (circle / arc) -->
     <div class="field" data-modes="circle arc">
-      <label for="sizeType">ระบุขนาดเป็น</label>
+      <label for="sizeType">Specify size by</label>
       <select id="sizeType">
-        <option value="d">เส้นผ่านศูนย์กลาง (Diameter)</option>
-        <option value="r">รัศมี (Radius)</option>
+        <option value="d">Diameter</option>
+        <option value="r">Radius</option>
       </select>
     </div>
     <div class="field" data-modes="circle arc">
-      <label for="size">ค่า (บล็อก)</label>
+      <label for="size">Value (blocks)</label>
       <input type="number" id="size" value="21" min="1" step="1" inputmode="decimal">
     </div>
     <div class="field" data-modes="circle arc" data-size="r">
       <label class="check"><input type="checkbox" id="radCenter">
-        นับรัศมีจากบล็อกกลาง (เส้นผ่านศูนย์กลาง = 2r + 1)</label>
-      <div class="hint">ถ้าไม่ติ๊ก: เส้นผ่านศูนย์กลาง = 2r (รัศมีรับค่า .5 ได้)</div>
+        Count radius from the center block (diameter = 2r + 1)</label>
+      <div class="hint">If unchecked: diameter = 2r (half-block radii such as 10.5 are accepted).</div>
     </div>
 
     <!-- arc -->
     <div data-modes="arc">
       <div class="two field">
-        <div><label for="start">มุมเริ่ม (°)</label>
+        <div><label for="start">Start angle (°)</label>
           <input type="number" id="start" value="0" min="0" max="359" step="1"></div>
-        <div><label for="sweep">มุมโค้ง (°)</label>
+        <div><label for="sweep">Sweep angle (°)</label>
           <input type="number" id="sweep" value="90" min="1" max="360" step="1"></div>
       </div>
-      <div class="hint" style="margin:-6px 0 8px">0° = ชี้ขึ้นด้านบน (เหนือ) หมุนตามเข็มนาฬิกา</div>
+      <div class="hint" style="margin:-6px 0 8px">0° points up (north) and angles increase clockwise.</div>
       <div class="field">
-        <div class="lbl">ปุ่มลัด</div>
+        <div class="lbl">Presets</div>
         <div class="chips">
-          <button class="chip" data-arc="0,90">¼ บนขวา</button>
-          <button class="chip" data-arc="90,90">¼ ล่างขวา</button>
-          <button class="chip" data-arc="180,90">¼ ล่างซ้าย</button>
-          <button class="chip" data-arc="270,90">¼ บนซ้าย</button>
-          <button class="chip" data-arc="270,180">½ บน</button>
-          <button class="chip" data-arc="0,180">½ ขวา</button>
-          <button class="chip" data-arc="90,180">½ ล่าง</button>
-          <button class="chip" data-arc="180,180">½ ซ้าย</button>
+          <button class="chip" data-arc="0,90">¼ top-right</button>
+          <button class="chip" data-arc="90,90">¼ bottom-right</button>
+          <button class="chip" data-arc="180,90">¼ bottom-left</button>
+          <button class="chip" data-arc="270,90">¼ top-left</button>
+          <button class="chip" data-arc="270,180">½ top</button>
+          <button class="chip" data-arc="0,180">½ right</button>
+          <button class="chip" data-arc="90,180">½ bottom</button>
+          <button class="chip" data-arc="180,180">½ left</button>
         </div>
       </div>
       <div class="field">
-        <label class="check"><input type="checkbox" id="ghost" checked> แสดงวงกลมเต็มแบบจาง ๆ</label>
+        <label class="check"><input type="checkbox" id="ghost" checked> Show the full circle faintly</label>
       </div>
     </div>
 
     <!-- S-curve -->
     <div data-modes="scurve">
       <div class="field">
-        <label for="spec">กำหนดโค้งด้วย</label>
+        <label for="spec">Define the curve by</label>
         <select id="spec">
-          <option value="ls">ระยะไปข้างหน้า (L) + ระยะเบี่ยง (S)</option>
-          <option value="rs">รัศมี (R) + ระยะเบี่ยง (S)</option>
+          <option value="ls">Forward distance (L) + Offset (S)</option>
+          <option value="rs">Radius (R) + Offset (S)</option>
         </select>
       </div>
       <div class="two field">
-        <div data-modes="scurve" data-spec="ls"><label for="L">L: ระยะไปข้างหน้า</label>
+        <div data-modes="scurve" data-spec="ls"><label for="L">L: forward distance</label>
           <input type="number" id="L" value="24" min="1" step="1"></div>
-        <div data-modes="scurve" data-spec="rs"><label for="R">R: รัศมีโค้ง</label>
+        <div data-modes="scurve" data-spec="rs"><label for="R">R: curve radius</label>
           <input type="number" id="R" value="20" min="1" step="0.5"></div>
-        <div><label for="S">S: ระยะเบี่ยงข้าง</label>
+        <div><label for="S">S: sideways offset</label>
           <input type="number" id="S" value="6" min="1" step="1"></div>
       </div>
       <div class="two field">
-        <div><label for="leadIn">ทางตรงก่อนโค้ง</label>
+        <div><label for="leadIn">Straight before curve</label>
           <input type="number" id="leadIn" value="3" min="0" step="1"></div>
-        <div><label for="leadOut">ทางตรงหลังโค้ง</label>
+        <div><label for="leadOut">Straight after curve</label>
           <input type="number" id="leadOut" value="3" min="0" step="1"></div>
       </div>
       <div class="field">
-        <label for="dir">ทิศทาง</label>
+        <label for="dir">Direction</label>
         <select id="dir">
-          <option value="vr">แนวตั้ง (บน→ล่าง) เบี่ยงไปขวา</option>
-          <option value="vl">แนวตั้ง (บน→ล่าง) เบี่ยงไปซ้าย</option>
-          <option value="hd">แนวนอน (ซ้าย→ขวา) เบี่ยงลงล่าง</option>
-          <option value="hu">แนวนอน (ซ้าย→ขวา) เบี่ยงขึ้นบน</option>
+          <option value="vr">Vertical (top to bottom), shift right</option>
+          <option value="vl">Vertical (top to bottom), shift left</option>
+          <option value="hd">Horizontal (left to right), shift down</option>
+          <option value="hu">Horizontal (left to right), shift up</option>
         </select>
       </div>
     </div>
 
     <!-- common -->
     <div class="field">
-      <div class="lbl">ลักษณะเส้นขอบ</div>
+      <div class="lbl">Outline style</div>
       <div class="radio">
-        <label><input type="radio" name="type" value="thin" checked> บาง</label>
-        <label><input type="radio" name="type" value="thick"> หนา</label>
+        <label><input type="radio" name="type" value="thin" checked> Thin</label>
+        <label><input type="radio" name="type" value="thick"> Thick</label>
       </div>
-      <div class="hint"><b>บาง</b> = บล็อกเชื่อมกันแบบทแยงได้ (ใช้บล็อกน้อยกว่า)<br>
-        <b>หนา</b> = บล็อกติดกันด้านข้างเสมอ ไม่มีรอยทแยง (เหมาะกับกำแพง ทางเดิน หรือกันน้ำรั่ว)</div>
+      <div class="hint"><b>Thin</b> = blocks may connect diagonally (fewer blocks).<br>
+        <b>Thick</b> = blocks always touch along their sides, with no diagonal gaps (good for walls, paths and watertight edges).</div>
     </div>
     <div class="field">
-      <label for="width">ความหนาของเส้น (จำนวนชั้น)</label>
+      <label for="width">Line thickness (layers)</label>
       <input type="number" id="width" value="1" min="1" max="20" step="1">
     </div>
   </aside>
@@ -182,24 +183,24 @@
     <div id="stats" class="stats"></div>
 
     <div class="toolbar">
-      <label class="check"><input type="checkbox" id="auto" checked> ปรับขนาดช่องอัตโนมัติ</label>
-      <label class="check">ขนาดช่อง
+      <label class="check"><input type="checkbox" id="auto" checked> Auto-fit cell size</label>
+      <label class="check">Cell size
         <input type="range" id="cs" min="4" max="40" value="16"> <span id="csv">16px</span></label>
-      <button class="btn" id="png">ดาวน์โหลด PNG</button>
-      <button class="btn" id="copy">คัดลอกเป็นข้อความ</button>
+      <button class="btn" id="png">Download PNG</button>
+      <button class="btn" id="copy">Copy as text</button>
     </div>
 
     <div class="wrap" id="wrap">
       <div class="stage"><canvas id="cv" width="10" height="10"></canvas><canvas id="ov" width="10" height="10"></canvas></div>
     </div>
-    <div class="status" id="status">เลื่อนเมาส์บนกริดเพื่อดูตำแหน่งบล็อก</div>
+    <div class="status" id="status">Hover over the grid to see block positions.</div>
 
     <details open>
-      <summary>ตารางสร้างทีละแถว</summary>
+      <summary>Row-by-row build guide</summary>
       <div class="note" id="guideNote"></div>
       <div class="tablebox">
         <table>
-          <thead><tr><th class="n">แถว</th><th>รูปแบบ (นับจากขอบซ้ายของกรอบ)</th><th class="n">บล็อก</th></tr></thead>
+          <thead><tr><th class="n">Row</th><th>Pattern (counted from the left edge of the frame)</th><th class="n">Blocks</th></tr></thead>
           <tbody id="guide"></tbody>
         </table>
       </div>
@@ -207,7 +208,7 @@
   </section>
 </div>
 
-<footer>ทำงานในเบราว์เซอร์ทั้งหมด · ไม่มีการส่งข้อมูลออกไปที่ใด</footer>
+<footer>Runs entirely in your browser. No data is sent anywhere.</footer>
 
 <script>
 (() => {
@@ -218,30 +219,30 @@ let mode = 'circle', last = null;
 /* ---------- input helpers ---------- */
 function num(id, label, {min = -Infinity, max = Infinity, int = false} = {}) {
   const raw = $(id).value.trim(), v = Number(raw);
-  if (raw === '' || !isFinite(v)) throw `กรุณากรอก "${label}" เป็นตัวเลข`;
-  if (int && !Number.isInteger(v)) throw `"${label}" ต้องเป็นจำนวนเต็ม`;
-  if (v < min || v > max) throw `"${label}" ต้องอยู่ระหว่าง ${min} ถึง ${max}`;
+  if (raw === '' || !isFinite(v)) throw `Please enter a number for "${label}".`;
+  if (int && !Number.isInteger(v)) throw `"${label}" must be a whole number.`;
+  if (v < min || v > max) throw `"${label}" must be between ${min} and ${max}.`;
   return v;
 }
 function getDiameter() {
   const t = $('sizeType').value;
-  const v = num('size', t === 'd' ? 'เส้นผ่านศูนย์กลาง' : 'รัศมี', {min: 1, max: 300});
+  const v = num('size', t === 'd' ? 'Diameter' : 'Radius', {min: 1, max: 300});
   let D;
   if (t === 'd') {
-    if (!Number.isInteger(v)) throw 'เส้นผ่านศูนย์กลางต้องเป็นจำนวนเต็ม';
+    if (!Number.isInteger(v)) throw 'Diameter must be a whole number.';
     D = v;
   } else {
-    if (!Number.isInteger(v * 2)) throw 'รัศมีต้องเป็นจำนวนเต็ม หรือลงท้ายด้วย .5';
+    if (!Number.isInteger(v * 2)) throw 'Radius must be a whole number or end in .5.';
     D = $('radCenter').checked ? v * 2 + 1 : v * 2;
-    if (!Number.isInteger(D)) throw 'เมื่อนับรัศมีจากบล็อกกลาง รัศมีต้องเป็นจำนวนเต็ม';
+    if (!Number.isInteger(D)) throw 'When counting from the center block, the radius must be a whole number.';
   }
-  if (D < 1 || D > 300) throw 'เส้นผ่านศูนย์กลางต้องอยู่ระหว่าง 1 ถึง 300 บล็อก';
+  if (D < 1 || D > 300) throw 'Diameter must be between 1 and 300 blocks.';
   return D;
 }
 
 /* ---------- core: region -> outline layers ---------- */
-// region(i,j) -> bool  (บล็อกที่ "อยู่ในพื้นที่")
-// นำพื้นที่มาลอกเปลือกทีละชั้น: บาง = เช็กเพื่อนบ้าน 4 ทิศ, หนา = 8 ทิศ
+// region(i,j) -> bool  (is the block inside the shape?)
+// Peel the shape layer by layer: thin = check 4 neighbours, thick = check 8 neighbours.
 function stroke(W, H, region, nb8, width) {
   const pad = width + 2, PW = W + 2 * pad, PH = H + 2 * pad;
   const cur = new Uint8Array(PW * PH), res = new Uint8Array(PW * PH);
@@ -278,7 +279,7 @@ function collect(st, keep) {
 }
 function makeGrid(main, ghost, center) {
   const all = ghost ? main.concat(ghost) : main;
-  if (!all.length) throw 'ไม่มีบล็อกให้แสดงผล';
+  if (!all.length) throw 'There are no blocks to display.';
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const [x, y] of all) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
   const w = x1 - x0 + 1, h = y1 - y0 + 1, data = new Uint8Array(w * h);
@@ -286,7 +287,7 @@ function makeGrid(main, ghost, center) {
   for (const [x, y] of main) data[(y - y0) * w + (x - x0)] = 1;
   return {w, h, data, count: main.length, center: center ? {x: center.x - x0, y: center.y - y0} : null};
 }
-const stacks = n => `${n.toLocaleString()} (${Math.floor(n / 64)} สแตก + ${n % 64})`;
+const stacks = n => `${n.toLocaleString()} (${Math.floor(n / 64)} stacks + ${n % 64})`;
 
 /* ---------- calculators ---------- */
 function circleRegion(D) {
@@ -304,19 +305,19 @@ function calcCircle(nb8, width) {
   return {
     grid, symmetric: true, file: `circle-D${D}-${nb8 ? 'thick' : 'thin'}`,
     stats: [
-      ['เส้นผ่านศูนย์กลาง', D + ' บล็อก'], ['รัศมี', R + ' บล็อก'],
-      ['จำนวนบล็อกเส้นขอบ', stacks(cells.length)], ['ถ้าถมเต็มวง', stacks(disc)],
-      ['ขนาดกรอบ', `${grid.w} × ${grid.h}`],
-      ['จุดศูนย์กลาง', D % 2 ? 'บล็อกเดียวตรงกลาง' : 'มุมร่วม 4 บล็อก (2×2)']
+      ['Diameter', D + ' blocks'], ['Radius', R + ' blocks'],
+      ['Outline blocks', stacks(cells.length)], ['Filled disc', stacks(disc)],
+      ['Frame size', `${grid.w} × ${grid.h}`],
+      ['Center', D % 2 ? 'Single center block' : 'Shared corner of a 2×2 block group']
     ],
-    note: 'วงกลมสมมาตร จึงแสดงเฉพาะครึ่งบน ส่วนครึ่งล่างให้ทำสะท้อนกลับ (แถวกลางของเลขคี่ใช้ครั้งเดียว)'
+    note: 'The circle is symmetric, so only the top half is listed. Mirror it for the bottom half (the middle row of an odd diameter is used once).'
   };
 }
 
 function calcArc(nb8, width) {
   const D = getDiameter(), R = D / 2, region = circleRegion(D);
-  const start = num('start', 'มุมเริ่ม', {min: 0, max: 359.99});
-  const sweep = num('sweep', 'มุมโค้ง', {min: 1, max: 360});
+  const start = num('start', 'Start angle', {min: 0, max: 359.99});
+  const sweep = num('sweep', 'Sweep angle', {min: 1, max: 360});
   const st = stroke(D, D, region, nb8, width);
   const full = collect(st, (x, y) => x >= 0 && y >= 0 && x < D && y < D);
   const inArc = (x, y) => {
@@ -326,37 +327,37 @@ function calcArc(nb8, width) {
     return t <= sweep + 2e-7;
   };
   const main = full.filter(([x, y]) => inArc(x, y));
-  if (!main.length) throw 'ไม่มีบล็อกในช่วงมุมนี้';
+  if (!main.length) throw 'There are no blocks in this angle range.';
   const grid = makeGrid(main, $('ghost').checked ? full : null, {x: R, y: R});
   return {
     grid, symmetric: false, file: `arc-D${D}-${start}-${sweep}`,
     stats: [
-      ['รัศมีวงกลม', R + ' บล็อก'], ['ช่วงมุม', `${start}° → ${(start + sweep) % 360}° (${sweep}°)`],
-      ['จำนวนบล็อก', stacks(main.length)], ['ความยาวโค้งโดยประมาณ', (R * sweep * Math.PI / 180).toFixed(1) + ' บล็อก'],
-      ['ขนาดกรอบ', `${grid.w} × ${grid.h}`]
+      ['Circle radius', R + ' blocks'], ['Angle range', `${start}° → ${(start + sweep) % 360}° (${sweep}°)`],
+      ['Blocks', stacks(main.length)], ['Approx. arc length', (R * sweep * Math.PI / 180).toFixed(1) + ' blocks'],
+      ['Frame size', `${grid.w} × ${grid.h}`]
     ],
-    note: 'ตัวเลข "เว้น" นับจากขอบซ้ายของกรอบที่แสดง (ถ้าเปิดวงกลมจางไว้ กรอบจะเป็นขนาดวงกลมเต็ม)'
+    note: 'Skip counts start from the left edge of the displayed frame (with the faint full circle enabled, the frame is the full circle size).'
   };
 }
 
 function calcSCurve(nb8, width) {
   const spec = $('spec').value;
-  const S = num('S', 'ระยะเบี่ยง (S)', {min: 1, max: 200, int: true});
-  const a = num('leadIn', 'ทางตรงก่อนโค้ง', {min: 0, max: 300, int: true});
-  const b = num('leadOut', 'ทางตรงหลังโค้ง', {min: 0, max: 300, int: true});
+  const S = num('S', 'Offset (S)', {min: 1, max: 200, int: true});
+  const a = num('leadIn', 'Straight before curve', {min: 0, max: 300, int: true});
+  const b = num('leadOut', 'Straight after curve', {min: 0, max: 300, int: true});
   let L, R, theta;
   if (spec === 'ls') {
-    L = num('L', 'ระยะไปข้างหน้า (L)', {min: 1, max: 300, int: true});
-    if (S > L) throw 'ระยะเบี่ยง (S) ต้องไม่มากกว่าระยะไปข้างหน้า (L) — ถ้าเบี่ยงมากกว่านี้ให้เพิ่ม L';
+    L = num('L', 'Forward distance (L)', {min: 1, max: 300, int: true});
+    if (S > L) throw 'Offset (S) must not exceed forward distance (L). For a larger shift, increase L.';
     R = (L * L + S * S) / (4 * S);
     theta = 2 * Math.atan(S / L);
   } else {
-    R = num('R', 'รัศมีโค้ง (R)', {min: 1, max: 5000});
-    if (S > 2 * R) throw 'ระยะเบี่ยง (S) ต้องไม่เกิน 2 เท่าของรัศมี (R)';
+    R = num('R', 'Curve radius (R)', {min: 1, max: 5000});
+    if (S > 2 * R) throw 'Offset (S) must not exceed twice the radius (R).';
     theta = Math.acos(1 - S / (2 * R));
     L = 2 * R * Math.sin(theta);
   }
-  // g(s): ระยะเบี่ยงข้างที่ระยะ s ตามแนวทาง (โค้งสองวงสมมาตร)
+  // g(s): sideways offset at distance s along the path (two symmetric arcs)
   const g = s => {
     if (s <= 0) return 0;
     if (s >= L) return S;
@@ -365,8 +366,8 @@ function calcSCurve(nb8, width) {
     return S - (R - Math.sqrt(Math.max(0, R * R - t * t)));
   };
   const rows = a + Math.ceil(L - 1e-9) + b;
-  if (rows > 800) throw 'ทางยาวเกินไป (สูงสุด 800 บล็อก)';
-  // พื้นที่ "ด้านซ้ายของเส้นทาง" แล้วลอกเปลือกขอบขวาออกมาเป็นเส้นทาง
+  if (rows > 800) throw 'The path is too long (maximum 800 blocks).';
+  // Take the area left of the path, then peel off its right edge to get the path itself
   const region = (i, j) => (i + .5) < g(j + .5 - a) + 1 - 1e-9;
   const st = stroke(Math.ceil(S) + 1, rows, region, nb8, width);
   let cells = collect(st, (x, y) => y >= 0 && y < rows);
@@ -378,11 +379,11 @@ function calcSCurve(nb8, width) {
   return {
     grid, symmetric: false, file: `scurve-L${Math.round(L)}-S${S}`,
     stats: [
-      ['รัศมีของแต่ละโค้ง', R.toFixed(1) + ' บล็อก'], ['มุมของแต่ละโค้ง', (theta * 180 / Math.PI).toFixed(1) + '°'],
-      ['ระยะโค้งไปข้างหน้า (L)', L.toFixed(1)], ['ระยะเบี่ยง (S)', S + ' บล็อก'],
-      ['จำนวนบล็อก', stacks(cells.length)], ['ขนาดกรอบ', `${grid.w} × ${grid.h}`]
+      ['Radius of each arc', R.toFixed(1) + ' blocks'], ['Angle of each arc', (theta * 180 / Math.PI).toFixed(1) + '°'],
+      ['Forward distance (L)', L.toFixed(1)], ['Offset (S)', S + ' blocks'],
+      ['Blocks', stacks(cells.length)], ['Frame size', `${grid.w} × ${grid.h}`]
     ],
-    note: 'S-curve ประกอบด้วยโค้งสองโค้งรัศมีเท่ากันที่โค้งสวนทางกัน เส้นเริ่มและจบขนานกัน (แถวนับจากด้านบนของกริด)'
+    note: 'An S-curve is two arcs of equal radius bending in opposite directions, so the start and end lines stay parallel. Rows are counted from the top of the grid.'
   };
 }
 
@@ -450,12 +451,12 @@ function renderGuide(r) {
       const s = x;
       while (x < g.w && g.data[y * g.w + x] === 1) x++;
       if (x > s) {
-        if (s - cursor > 0) parts.push(`เว้น ${s - cursor}`);
-        parts.push(`<b>วาง ${x - s}</b>`);
+        if (s - cursor > 0) parts.push(`skip ${s - cursor}`);
+        parts.push(`<b>place ${x - s}</b>`);
         cursor = x; total += x - s;
       }
     }
-    html += `<tr><td class="n">${y + 1}</td><td>${parts.join(' → ') || '(ว่าง)'}</td><td class="n">${total}</td></tr>`;
+    html += `<tr><td class="n">${y + 1}</td><td>${parts.join(' → ') || '(empty)'}</td><td class="n">${total}</td></tr>`;
   }
   $('guide').innerHTML = html;
   $('guideNote').textContent = r.note || '';
@@ -474,13 +475,13 @@ $('cv').addEventListener('mousemove', e => {
   o.fillStyle = 'rgba(255,255,255,.08)';
   o.fillRect(M, M + row * cs, g.w * cs, cs); o.fillRect(M + col * cs, M, cs, g.h * cs);
   o.strokeStyle = '#ffd24a'; o.lineWidth = 2; o.strokeRect(M + col * cs + 1, M + row * cs + 1, cs - 2, cs - 2);
-  let t = `คอลัมน์ ${col + 1}, แถว ${row + 1}`;
+  let t = `Column ${col + 1}, Row ${row + 1}`;
   if (g.center) {
     const dx = col + .5 - g.center.x, dz = row + .5 - g.center.y;
-    t += `  |  จากจุดศูนย์กลาง: X ${dx > 0 ? '+' : ''}${dx}, Z ${dz > 0 ? '+' : ''}${dz}`;
+    t += `  |  From center: X ${dx > 0 ? '+' : ''}${dx}, Z ${dz > 0 ? '+' : ''}${dz}`;
   }
   const v = g.data[row * g.w + col];
-  $('status').textContent = t + (v === 1 ? '  |  ■ วางบล็อก' : '');
+  $('status').textContent = t + (v === 1 ? '  |  ■ place block' : '');
 });
 $('cv').addEventListener('mouseleave', () => {
   const ov = $('ov'); ov.getContext('2d').clearRect(0, 0, ov.width, ov.height);
@@ -491,12 +492,12 @@ function update() {
   try {
     $('error').classList.add('hide');
     const nb8 = document.querySelector('input[name=type]:checked').value === 'thick';
-    const width = num('width', 'ความหนาเส้น', {min: 1, max: 20, int: true});
+    const width = num('width', 'Line thickness', {min: 1, max: 20, int: true});
     const r = mode === 'circle' ? calcCircle(nb8, width)
             : mode === 'arc' ? calcArc(nb8, width) : calcSCurve(nb8, width);
     render(r);
   } catch (e) {
-    const msg = typeof e === 'string' ? e : 'เกิดข้อผิดพลาด: ' + e.message;
+    const msg = typeof e === 'string' ? e : 'Error: ' + e.message;
     if (typeof e !== 'string') console.error(e);
     $('error').textContent = msg; $('error').classList.remove('hide');
   }
@@ -546,9 +547,9 @@ $('copy').addEventListener('click', async () => {
     s += '\n';
   }
   const btn = $('copy');
-  try { await navigator.clipboard.writeText(s); btn.textContent = 'คัดลอกแล้ว ✓'; }
-  catch { btn.textContent = 'คัดลอกไม่ได้'; }
-  setTimeout(() => btn.textContent = 'คัดลอกเป็นข้อความ', 1400);
+  try { await navigator.clipboard.writeText(s); btn.textContent = 'Copied ✓'; }
+  catch { btn.textContent = 'Copy failed'; }
+  setTimeout(() => btn.textContent = 'Copy as text', 1400);
 });
 
 vis(); update();
